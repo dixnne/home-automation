@@ -1,0 +1,37 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Servicio del Backend (API)
+  backend:
+    build: ./backend
+    container_name: domotica-backend
+    restart: unless-stopped
+    # No es necesario exponer puertos aquí porque Nginx se encargará
+
+  # Servicio del Frontend (React App)
+  # Usaremos Nginx para servir los archivos estáticos de React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod # Usaremos un Dockerfile específico para producción
+    container_name: domotica-frontend
+    restart: unless-stopped
+
+  # Servicio de Reverse Proxy con Nginx
+  # Este es el único servicio que expone puertos al exterior
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: domotica-nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"      # Puerto HTTP
+      - "443:443"    # Puerto HTTPS (para cuando configures SSL)
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf # Montamos nuestro archivo de configuración
+      # Para SSL con Let's Encrypt (cuando lo tengas):
+      # - ./nginx/certbot/conf:/etc/letsencrypt
+      # - ./nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - backend
+      - frontend

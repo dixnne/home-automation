@@ -1,0 +1,20 @@
+# frontend/Dockerfile.prod
+# --- Etapa de Build ---
+# Construye la aplicación React
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . ./
+# El comando 'npm run build' crea una carpeta 'dist' con los archivos estáticos
+RUN npm run build
+
+# --- Etapa de Producción ---
+# Usa una imagen ligera de Nginx para servir los archivos
+FROM nginx:1.25-alpine
+# Copia los archivos estáticos construidos en la etapa anterior a la carpeta de Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+# Copia una configuración por defecto si la necesitas (opcional)
+# COPY nginx.conf /etc/nginx/conf.d/default.conf 
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
