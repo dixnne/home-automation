@@ -60,21 +60,26 @@ body {
 
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr; /* Cada gráfica ocupará una fila */
+  gap: 2rem;
 }
 
-.chart-placeholder {
+.chart-wrapper {
   background-color: #1f4068;
   border-radius: 12px;
   padding: 1.5rem;
-  text-align: center;
   border: 1px solid #1b1b2f;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-.chart-placeholder h3 { margin: 0 0 1rem 0; color: #00e5ff; }
-.chart-placeholder .chart-value {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: #fff;
-    margin: 0.5rem 0;
+
+.chart-wrapper h3 { 
+  margin-top: 0;
+  margin-bottom: 1.5rem; 
+  color: #00e5ff; 
+  text-align: center;
+}
+
+/* Recharts-specific text styling */
+.recharts-text {
+  fill: #e0e0e0 !important;
 }
