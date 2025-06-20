@@ -1,51 +1,49 @@
-// backend/server.js
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = 3001; // El puerto interno para el backend
+const PORT = 3001;
 
-// Middlewares
-app.use(cors()); // Permite peticiones desde otros orígenes (tu frontend)
-app.use(express.json()); // Permite al servidor entender JSON
+app.use(cors());
+app.use(express.json());
 
-// Variable en memoria para almacenar el último estado de los sensores.
-// En un proyecto real, usarías una base de datos (e.g., MongoDB, PostgreSQL).
+// Estructura de datos actualizada para reflejar el nuevo payload
 let latestSensorData = {
-  temperatura: 0,
-  luminosidad: 0,
-  distancia: 0,
+  values: {
+    temperatura: 0,
+    luminosidad: 0,
+    distancia: 0,
+  },
+  states: {
+    movimiento: "Iniciando...",
+    ventilador: "Iniciando...",
+    luces_verdes: "Iniciando...",
+  },
   timestamp: new Date().toISOString()
 };
 
-// --- RUTAS DE LA API ---
-
-// POST /api/data - Ruta para que el ESP32 envíe datos
+// Ruta POST actualizada para manejar el nuevo formato
 app.post('/api/data', (req, res) => {
-  console.log('Datos recibidos del ESP32:', req.body);
-  const { temperatura, luminosidad, distancia } = req.body;
+  console.log('Payload recibido:', req.body);
+  const { values, states } = req.body;
 
-  // Validación simple
-  if (temperatura === undefined || luminosidad === undefined || distancia === undefined) {
-    return res.status(400).json({ error: 'Faltan datos en la petición.' });
+  if (!values || !states) {
+    return res.status(400).json({ error: 'Formato de datos incorrecto.' });
   }
 
-  // Actualizar los datos
   latestSensorData = {
-    temperatura: parseFloat(temperatura),
-    luminosidad: parseInt(luminosidad),
-    distancia: parseFloat(distancia),
+    values: values,
+    states: states,
     timestamp: new Date().toISOString()
   };
 
   res.status(200).json({ message: 'Datos recibidos correctamente.' });
 });
 
-// GET /api/data - Ruta para que el frontend pida los últimos datos
+// Ruta GET sin cambios, devolverá la nueva estructura completa
 app.get('/api/data', (req, res) => {
   res.status(200).json(latestSensorData);
 });
 
-// Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });
